@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NEXUS Finance</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#0A0E16" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080B12; --bg2:#0D1220; --panel:#111828; --panel2:#161F33;
+  --line:#212C42; --cyan:#38E1FF; --cyan-dim:#1B7A8C; --amber:#FFA23D;
+  --green:#3DDC97; --pink:#FF5C8A; --txt:#E7EDF6; --muted:#7C8AA6;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Sora',sans-serif;
+  background-image:radial-gradient(circle at 15% 0%, rgba(56,225,255,.07), transparent 45%),radial-gradient(circle at 100% 100%, rgba(255,92,138,.05), transparent 40%);}
+.mono{font-family:'JetBrains Mono',monospace;}
+::selection{background:var(--cyan);color:#000;}
+button,input,select{font-family:inherit;}
+input:focus,select:focus,button:focus-visible{outline:1px solid var(--cyan);outline-offset:1px;}
+
+.shell{display:flex;min-height:100vh;}
+#sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--line);padding:20px 14px;flex-shrink:0;transition:width .2s;position:sticky;top:0;height:100vh;overflow:hidden;}
+#sidebar.collapsed{width:66px;}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px;white-space:nowrap;}
+.brand .dot{width:10px;height:10px;border-radius:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);flex-shrink:0;}
+.brand span{font-weight:700;letter-spacing:.08em;font-size:15px;}
+#sidebar.collapsed .brand span,#sidebar.collapsed .navlabel,#sidebar.collapsed .userbox-text{display:none;}
+.navitem{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;color:var(--muted);cursor:pointer;font-size:13.5px;font-weight:500;margin-bottom:2px;white-space:nowrap;}
+.navitem .ic{width:18px;text-align:center;flex-shrink:0;}
+.navitem.active{background:rgba(56,225,255,.10);color:var(--cyan);box-shadow:inset 2px 0 0 var(--cyan);}
+.navitem:hover:not(.active){background:var(--panel);color:var(--txt);}
+.toggle-btn{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;margin-bottom:16px;}
+.userbox{display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid var(--line);margin-top:14px;white-space:nowrap;}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--pink));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#000;}
+
+main{flex:1;padding:26px 28px 60px;max-width:1180px;}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.pagehead h1{font-size:22px;margin:0;font-weight:700;}
+.pagehead p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+.pill{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);}
+
+.grid{display:grid;gap:14px;}
+.g4{grid-template-columns:repeat(4,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g2{grid-template-columns:1.4fr 1fr;}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;}
+.kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.kpi .val{font-size:24px;font-weight:700;margin-top:6px;}
+.kpi .sub{font-size:12px;margin-top:4px;}
+.up{color:var(--green);} .down{color:var(--pink);} .warn{color:var(--amber);}
+
+.sectitle{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:26px 0 10px;}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px dashed var(--line);}
+.row:last-child{border-bottom:none;}
+.badge{font-size:10px;padding:2px 8px;border-radius:5px;border:1px solid var(--line);color:var(--muted);}
+.track{height:6px;border-radius:99px;background:var(--bg2);overflow:hidden;}
+.fill{height:100%;border-radius:99px;}
+
+.xpbar{display:flex;align-items:center;gap:12px;}
+.lvlring{width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--cyan) var(--pct,60%), var(--line) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lvlring i{width:42px;height:42px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;font-style:normal;}
+
+.achv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;}
+.achv{text-align:center;padding:14px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);}
+.achv.locked{opacity:.35;}
+.achv .em{font-size:24px;}
+.achv .t{font-size:11.5px;margin-top:6px;font-weight:600;}
+
+.btn{background:var(--cyan);color:#03151A;border:none;padding:9px 16px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer;}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);}
+.btn.sm{padding:6px 12px;font-size:12px;}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:900px){.plans{grid-template-columns:1fr;}}
+.plancard{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--panel);position:relative;}
+.plancard.featured{border-color:var(--cyan);box-shadow:0 0 24px rgba(56,225,255,.15);}
+.plancard .tag{position:absolute;top:-10px;right:16px;background:var(--cyan);color:#03151A;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;}
+.plancard h3{margin:0 0 4px;}
+.plancard .price{font-size:26px;font-weight:700;margin:10px 0;}
+.plancard ul{list-style:none;padding:0;margin:0 0 16px;font-size:13px;color:var(--muted);}
+.plancard li{padding:5px 0;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.field input,.field select{width:100%;padding:9px 11px;border-radius:7px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font-size:13.5px;}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--cyan);padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:0 0 18px rgba(56,225,255,.25);z-index:99;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const fmt = n => (n<0?"-R$ ":"R$ ") + Math.abs(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = s => (s||"").toString();
+
+/* ---------- mock data (fictício, apenas para demonstração de fluxo) ---------- */
+const D = {
+  user:{name:"Gustavo Pelegrine", plan:"Pro", level:7, xp:640, xpNext:900, streak:12},
+  accounts:[{bank:"Banco do Brasil",bal:4820.30},{bank:"Nubank",bal:2150.00},{bank:"Inter",bal:980.15}],
+  kpis:{saldo:7950.45, receita:9200, despesa:5340, cartaoFatura:1870.32, cartaoLimite:5000, investido:18400},
+  transacoes:[
+    {d:"28/09",desc:"Supermercado Pão de Açúcar",cat:"Alimentação",tipo:"Cartão",v:-342.10},
+    {d:"27/09",desc:"Salário",cat:"Renda",tipo:"Conta",v:6200.00},
+    {d:"26/09",desc:"Uber",cat:"Transporte",tipo:"Cartão",v:-38.50},
+    {d:"25/09",desc:"Academia SmartFit",cat:"Saúde",tipo:"Fixa",v:-119.90},
+    {d:"24/09",desc:"Aporte Tesouro Selic",cat:"Investimento",tipo:"Conta",v:-1000.00},
+    {d:"23/09",desc:"Netflix",cat:"Assinaturas",tipo:"Fixa",v:-44.90},
+  ],
+  cartaoCategorias:[{c:"Alimentação",v:680,p:36},{c:"Transporte",v:310,p:17},{c:"Compras",v:520,p:28},{c:"Lazer",v:360,p:19}],
+  investimentos:[
+    {nome:"Tesouro Selic",tipo:"Renda Fixa",valor:9200,rent:"+1,1% no mês",cor:"var(--cyan)"},
+    {nome:"Ações BR (carteira)",tipo:"Renda Variável",valor:5600,rent:"+3,4% no mês",cor:"var(--green)"},
+    {nome:"Cripto",tipo:"Renda Variável",valor:1900,rent:"-2,2% no mês",cor:"var(--pink)"},
+    {nome:"CDB 110% CDI",tipo:"Renda Fixa",valor:1700,rent:"+0,9% no mês",cor:"var(--amber)"},
+  ],
+  fixas:[
+    {desc:"Aluguel",cat:"Moradia",v:1450,dia:5,status:"pago"},
+    {desc:"Internet",cat:"Moradia",v:99.90,dia:10,status:"pago"},
+    {desc:"Academia",cat:"Saúde",v:119.90,dia:8,status:"pago"},
+    {desc:"Netflix",cat:"Assinaturas",v:44.90,dia:15,status:"pendente"},
+    {desc:"Salário",cat:"Renda",v:6200,dia:1,status:"pago"},
+  ],
+  metas:[
+    {nome:"Reserva de emergência",atual:9200,alvo:15000},
+    {nome:"Viagem Argentina",atual:2100,alvo:6000},
+  ],
+  desafios:[
+    {nome:"Gastar menos de R$500 em lazer este mês",prog:72,xp:80},
+    {nome:"Registrar gastos 7 dias seguidos",prog:100,xp:50,done:true},
+    {nome:"Investir 10% da renda este mês",prog:40,xp:120},
+  ],
+  conquistas:[
+    {em:"🔥",t:"Sequência de 10 dias",on:true},{em:"💰",t:"Primeira meta batida",on:true},
+    {em:"📊",t:"Investidor iniciante",on:true},{em:"🏦",t:"Organizador de fixas",on:true},
+    {em:"🚀",t:"3 meses seguidos no azul",on:false},{em:"👑",t:"Nível 10",on:false},
+    {em:"🎯",t:"5 desafios completos",on:false},{em:"💎",t:"R$50k investidos",on:false},
+  ],
+};
+
+let tab = "dashboard", sidebarOpen = true, toast = null;
+function setTab(t){ tab=t; render(); }
+function toggleSidebar(){ sidebarOpen=!sidebarOpen; render(); }
+function showToast(msg){ toast=msg; render(); setTimeout(()=>{ toast=null; render(); },2200); }
+
+const NAV = [
+  {id:"dashboard",ic:"◆",label:"Dashboard"},
+  {id:"transacoes",ic:"≡",label:"Transações"},
+  {id:"cartao",ic:"▭",label:"Cartão"},
+  {id:"investimentos",ic:"▲",label:"Investimentos"},
+  {id:"fixas",ic:"↻",label:"Contas Fixas"},
+  {id:"metas",ic:"★",label:"Metas & Conquistas"},
+  {id:"perfil",ic:"●",label:"Perfil"},
+  {id:"planos",ic:"◈",label:"Planos"},
+];
+
+function render(){
+  document.getElementById("app").innerHTML = `
+  <div class="shell">
+    <aside id="sidebar" class="${sidebarOpen?'':'collapsed'}">
+      <div class="brand"><span class="dot"></span><span>NEXUS FINANCE</span></div>
+      <button class="toggle-btn" onclick="toggleSidebar()">${sidebarOpen?'«':'»'}</button>
+      ${NAV.map(n=>`<div class="navitem ${tab===n.id?'active':''}" onclick="setTab('${n.id}')"><span class="ic">${n.ic}</span><span class="navlabel">${n.label}</span></div>`).join("")}
+      <div class="userbox">
+        <div class="avatar">GP</div>
+        <div class="userbox-text"><div style="font-size:12.5px;font-weight:600;">${D.user.name.split(" ")[0]}</div><div style="font-size:11px;color:var(--muted)">Plano ${D.user.plan}</div></div>
+      </div>
+    </aside>
+    <main>${ PAGES[tab]() }</main>
+  </div>
+  ${toast? `<div class="toast">${toast}</div>`:""}
+  `;
+}
+
+function bar(pct,color){ return `<div class="track"><div class="fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>`; }
+
+const PAGES = {
+dashboard: ()=>`
+  <div class="pagehead"><div><h1>Dashboard</h1><p>Visão geral · Setembro 2026</p></div><span class="pill mono">Streak 🔥 ${D.user.streak} dias</span></div>
+  <div class="grid g4">
+    <div class="card kpi"><div class="lbl">Saldo total</div><div class="val mono">${fmt(D.kpis.saldo)}</div><div class="sub up">↑ ${D.accounts.length} contas</div></div>
+    <div class="card kpi"><div class="lbl">Receita do mês</div><div class="val mono up">${fmt(D.kpis.receita)}</div><div class="sub">vs mês anterior +4%</div></div>
+    <div class="card kpi"><div class="lbl">Despesas do mês</div><div class="val mono down">${fmt(D.kpis.despesa)}</div><div class="sub">58% da receita</div></div>
+    <div class="card kpi"><div class="lbl">Investido</div><div class="val mono" style="color:var(--cyan)">${fmt(D.kpis.investido)}</div><div class="sub up">+1,8% no mês</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px;">
+    <div class="card">
+      <div class="lbl" style="font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Fatura do cartão</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;"><span class="mono" style="font-size:20px;font-weight:700;">${fmt(D.kpis.cartaoFatura)}</span><span class="badge">limite ${fmt(D.kpis.cartaoLimite)}</span></div>
+      ${bar(D.kpis.cartaoFatura/D.kpis.cartaoLimite*100,"var(--amber)")}
+      <div class="sectitle" style="margin-top:18px;">Últimas transações</div>
+      ${D.transacoes.slice(0,4).map(t=>`<div class="row"><div><div style="font-size:13.5px;">${esc(t.desc)}</div><div style="font-size:11px;color:var(--muted)">${t.d} · ${t.cat}</div></div><span class="mono" style="color:${t.v>0?'var(--green)':'var(--txt)'}">${fmt(t.v)}</span></div>`).join("")}
+    </div>
+    <div class="card">
+      <div class="lbl" style="font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Progressão</div>
+      <div class="xpbar">
+        <div class="lvlring" style="--pct:${(D.user.xp/D.user.xpNext*100)}%"><i>Lv${D.user.level}</i></div>
+        <div style="flex:1;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:5px;"><span>XP</span><span class="mono">${D.user.xp}/${D.user.xpNext}</span></div>${bar(D.user.xp/D.user.xpNext*100,"var(--cyan)")}</div>
+      </div>
+      <div class="sectitle">Desafio ativo</div>
+      ${D.desafios.filter(d=>!d.done).slice(0,1).map(d=>`<div><div style="font-size:13px;margin-bottom:6px;">${d.nome}</div>${bar(d.prog,"var(--green)")}<div style="font-size:11px;color:var(--muted);margin-top:4px;">${d.prog}% · +${d.xp} XP ao completar</div></div>`).join("")}
+    </div>
+  </div>
+`,
+
+transacoes: ()=>`
+  <div class="pagehead"><div><h1>Transações</h1><p>Todas as contas e o cartão em um só lugar</p></div><button class="btn" onclick="showToast('Lançamento adicionado (demonstração)')">+ Novo lançamento</button></div>
+  <div class="card">
+    ${D.transacoes.map(t=>`<div class="row"><div><div style="font-size:14px;">${esc(t.desc)}</div><div style="font-size:11.5px;color:var(--muted)">${t.d} · ${t.cat}</div></div><div style="display:flex;align-items:center;gap:10px;"><span class="badge">${t.tipo}</span><span class="mono" style="color:${t.v>0?'var(--green)':'var(--txt)'}">${fmt(t.v)}</span></div></div>`).join("")}
+  </div>
+`,
+
+cartao: ()=>`
+  <div class="pagehead"><div><h1>Cartão de Crédito</h1><p>Fatura atual e gastos por categoria</p></div></div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="lbl" style="font-size:11px;color:var(--muted);text-transform:uppercase;">Fatura de setembro</div>
+      <div class="val mono" style="font-size:28px;font-weight:700;margin:8px 0;">${fmt(D.kpis.cartaoFatura)}</div>
+      ${bar(D.kpis.cartaoFatura/D.kpis.cartaoLimite*100,"var(--amber)")}
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">${fmt(D.kpis.cartaoLimite-D.kpis.cartaoFatura)} de limite disponível · fecha dia 28</div>
+      <button class="btn sm" style="margin-top:14px;" onclick="showToast('Fatura marcada como paga (demonstração)')">Marcar fatura como paga</button>
+    </div>
+    <div class="card">
+      <div class="lbl" style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Gastos por categoria</div>
+      ${D.cartaoCategorias.map(c=>`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span>${c.c}</span><span class="mono">${fmt(c.v)}</span></div>${bar(c.p,"var(--cyan)")}</div>`).join("")}
+    </div>
+  </div>
+`,
+
+investimentos: ()=>`
+  <div class="pagehead"><div><h1>Investimentos</h1><p>Carteira consolidada · ${fmt(D.kpis.investido)}</p></div><button class="btn ghost" onclick="showToast('Novo aporte registrado (demonstração)')">+ Registrar aporte</button></div>
+  <div class="grid g4">
+    ${D.investimentos.map(i=>`<div class="card"><div class="lbl">${i.tipo}</div><div style="font-weight:600;margin:6px 0 2px;">${i.nome}</div><div class="mono" style="font-size:18px;font-weight:700;">${fmt(i.valor)}</div><div class="sub" style="color:${i.rent[0]==='+'?'var(--green)':'var(--pink)'}">${i.rent}</div></div>`).join("")}
+  </div>
+  <div class="sectitle">Alocação</div>
+  <div class="card">${D.investimentos.map(i=>`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span>${i.nome}</span><span class="mono">${(i.valor/D.kpis.investido*100).toFixed(0)}%</span></div>${bar(i.valor/D.kpis.investido*100,i.cor)}</div>`).join("")}</div>
+`,
+
+fixas: ()=>`
+  <div class="pagehead"><div><h1>Contas Fixas</h1><p>Recorrências mensais · receitas e despesas</p></div><button class="btn" onclick="showToast('Conta fixa adicionada (demonstração)')">+ Nova fixa</button></div>
+  <div class="card">
+    ${D.fixas.map(f=>`<div class="row"><div><div style="font-size:14px;">${esc(f.desc)}</div><div style="font-size:11.5px;color:var(--muted)">${f.cat} · dia ${f.dia}</div></div><div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="color:${f.v>0?'var(--green)':'var(--txt)'}">${fmt(f.cat==='Renda'?f.v:-f.v)}</span><span class="badge" style="color:${f.status==='pago'?'var(--green)':'var(--amber)'};border-color:${f.status==='pago'?'var(--green)':'var(--amber)'}">${f.status}</span></div></div>`).join("")}
+  </div>
+`,
+
+metas: ()=>`
+  <div class="pagehead"><div><h1>Metas & Conquistas</h1><p>Progressão, desafios e recompensas</p></div></div>
+  <div class="sectitle">Metas financeiras</div>
+  <div class="grid g2">
+    ${D.metas.map(m=>`<div class="card"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;"><span>${m.nome}</span><span class="mono">${fmt(m.atual)} / ${fmt(m.alvo)}</span></div>${bar(m.atual/m.alvo*100,"var(--cyan)")}<div style="font-size:11.5px;color:var(--muted);margin-top:6px;">${(m.atual/m.alvo*100).toFixed(0)}% concluído</div></div>`).join("")}
+  </div>
+  <div class="sectitle">Desafios ativos</div>
+  <div class="card">
+    ${D.desafios.map(d=>`<div class="row"><div style="flex:1;"><div style="font-size:13.5px;margin-bottom:6px;">${d.nome} ${d.done?'<span class="badge" style="color:var(--green);border-color:var(--green)">concluído</span>':''}</div>${bar(d.prog,d.done?"var(--green)":"var(--cyan)")}</div><span class="mono" style="margin-left:16px;color:var(--amber);">+${d.xp} XP</span></div>`).join("")}
+  </div>
+  <div class="sectitle">Conquistas</div>
+  <div class="achv-grid">
+    ${D.conquistas.map(c=>`<div class="achv ${c.on?'':'locked'}"><div class="em">${c.em}</div><div class="t">${c.t}</div></div>`).join("")}
+  </div>
+`,
+
+perfil: ()=>`
+  <div class="pagehead"><div><h1>Perfil</h1><p>Dados da conta</p></div></div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="field"><label>Nome</label><input value="${D.user.name}"></div>
+      <div class="field"><label>E-mail</label><input value="gustavo@email.com"></div>
+      <div class="field"><label>Moeda padrão</label><select><option>Real (BRL)</option><option>Dólar (USD)</option></select></div>
+      <button class="btn" onclick="showToast('Perfil atualizado (demonstração)')">Salvar alterações</button>
+    </div>
+    <div class="card">
+      <div class="lbl" style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Contas conectadas</div>
+      ${D.accounts.map(a=>`<div class="row"><span>${a.bank}</span><span class="mono">${fmt(a.bal)}</span></div>`).join("")}
+      <button class="btn ghost sm" style="margin-top:12px;" onclick="showToast('Nova conta conectada (demonstração)')">+ Conectar conta</button>
+    </div>
+  </div>
+`,
+
+planos: ()=>`
+  <div class="pagehead"><div><h1>Planos & Pagamentos</h1><p>Você está no plano <b style="color:var(--cyan)">${D.user.plan}</b></p></div></div>
+  <div class="plans">
+    <div class="plancard"><h3>Free</h3><div class="price mono">R$ 0<span style="font-size:13px;color:var(--muted)">/mês</span></div>
+      <ul><li>✓ 2 contas conectadas</li><li>✓ Transações ilimitadas</li><li>✗ Gamificação completa</li><li>✗ Relatórios avançados</li></ul>
+      <button class="btn ghost" style="width:100%;" onclick="showToast('Você já está no Free ou abaixo (demonstração)')">Plano atual</button></div>
+    <div class="plancard featured"><span class="tag">MAIS POPULAR</span><h3>Pro</h3><div class="price mono">R$ 19<span style="font-size:13px;color:var(--muted)">/mês</span></div>
+      <ul><li>✓ Contas ilimitadas</li><li>✓ Gamificação completa</li><li>✓ Metas e desafios</li><li>✓ Relatórios mensais</li></ul>
+      <button class="btn" style="width:100%;" onclick="showToast('Assinatura Pro confirmada (demonstração — pagamento real via Stripe/Mercado Pago)')">Plano atual ✓</button></div>
+    <div class="plancard"><h3>Premium</h3><div class="price mono">R$ 39<span style="font-size:13px;color:var(--muted)">/mês</span></div>
+      <ul><li>✓ Tudo do Pro</li><li>✓ Consultoria financeira IA</li><li>✓ Múltiplos usuários (família)</li><li>✓ Suporte prioritário</li></ul>
+      <button class="btn ghost" style="width:100%;" onclick="showToast('Upgrade iniciado (demonstração)')">Fazer upgrade</button></div>
+  </div>
+  <div class="sectitle">Histórico de pagamento</div>
+  <div class="card"><div class="row"><span>Assinatura Pro — Setembro/2026</span><span class="mono up">Pago</span></div><div class="row"><span>Assinatura Pro — Agosto/2026</span><span class="mono up">Pago</span></div></div>
+`,
+};
+
+render();
+</script>
+</body>
+</html>
